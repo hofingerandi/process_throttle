@@ -27,6 +27,41 @@ namespace slowdown
             UpdateBlocker();
         }
 
+
+        #region About... context menu entry
+
+        private int SYSMENU_ABOUT_ID = 0x01;
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            // Get a handle to a copy of this form's system (window) menu
+            IntPtr hSysMenu = NativeMethods.GetSystemMenu(this.Handle, false);
+
+            // Add a separator
+            NativeMethods.AppendMenu(hSysMenu, NativeMethods.MF_SEPARATOR, 0, string.Empty);
+
+            // Add the About menu item
+            NativeMethods.AppendMenu(hSysMenu, NativeMethods.MF_STRING, SYSMENU_ABOUT_ID, "&About…");
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            // Test if the About item was selected from the system menu
+            if ((m.Msg == NativeMethods.WM_SYSCOMMAND) && ((int)m.WParam == SYSMENU_ABOUT_ID))
+            {
+                using (var dlg = new LicenseInfo())
+                {
+                    dlg.ShowDialog();
+                }
+            }
+        }
+
+        #endregion
+
         CpuBlocker Blocker;
 
         protected override void OnClosing(CancelEventArgs e)
@@ -170,3 +205,5 @@ namespace slowdown
         }
     }
 }
+
+
